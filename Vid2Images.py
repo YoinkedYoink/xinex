@@ -1,8 +1,10 @@
 import numpy as np
+from tkinter import Tk
+from tkinter.filedialog import askdirectory
 #CHANGE THESE IF YOU HAVE TO
 
-video_folder = r"C:\Users\Nord\Documents\ShareX\Screenshots\2023-10"
-image_export_folder = r"C:\Users\Nord\Documents\code\ai-aim\images"
+video_folder = askdirectory(title='Input Video Folder')
+image_export_folder = askdirectory(title='Output Image Folder')
 
 MONITOR_WIDTH = 1920
 MONITOR_HEIGHT = 1080

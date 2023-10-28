@@ -1,4 +1,4 @@
-ModelConfidence = 0.1
+ModelConfidence = 0.4
 MaxDetections = 5
 UseHalfFloat = False
 
@@ -6,18 +6,27 @@ aimSpeed = 1
 actRange = 900
 headshot = True
 
+AimMethod = 1  # 1. Closest To Mouse
+               # 2. Biggest Bounding Box
+               # 3. Highest Confidence
+
 triggerbot_key = 'n'
 aimbot_key = 'x'
+closeui_key = 'p'
 
 MONITOR_WIDTH = 1920
 MONITOR_HEIGHT = 1080
 MONITOR_SCALE = 4
+ShowGUI = False
+
+import numpy as np
+lower_pink = np.array([100, 0, 110])
+upper_pink = np.array([255, 100, 255])
 
 import dxcam
 from ultralytics import YOLO
-from PIL import Image, ImageTk
+#from PIL import Image, ImageTk
 import cv2
-import numpy as np
 import time
 import math
 import keyboard
@@ -64,6 +73,8 @@ while True:
     close_p = -1
     screenshot = camera.grab(region)
     if type(screenshot) == np.ndarray:
+        screenshot = cv2.inRange(screenshot, lower_pink, upper_pink)
+        screenshot = cv2.cvtColor(screenshot, cv2.COLOR_GRAY2BGR)
         df = model(source=screenshot, verbose=False)
         annotation = df[0].plot()
         boxes = df[0].boxes
@@ -133,7 +144,7 @@ while True:
         ymax = df[3]
 
         body_cent_list = [(xmax+xmin)/2,(ymax+ymin)/2]
-        head_cent_list = [(xmax+xmin)/2,((ymax+ymin)/4)*2]
+        head_cent_list = [(xmax+xmin)/2,((ymax - ymin)/5)+ymin]
         if triggerbot == True and screenshot_centre[0] in range(int(xmin),int(xmax)) and screenshot_centre[1] in range(int(ymin),int(ymax)):
             win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP,screenshot_centre[0],screenshot_centre[1],0,0)
             win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN,screenshot_centre[0],screenshot_centre[1],0,0)
@@ -148,7 +159,6 @@ while True:
                 ydif = (body_cent_list[1] - screenshot_centre[1]) * aimSpeed
 
             win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, int(xdif),int(ydif),0,0)
-            #print("Moved "+str(xdif)+" : "+str(ydif))
             send_next[0] = False
             thread = threading.Thread(target=cooldown, args=(send_next,0.01,))
             thread.start()
@@ -156,42 +166,42 @@ while True:
 
     #UNCOMMENT BELOW FOR GUI, REDUCES FPS
 
+    if ShowGUI == True:
+        screen_fps = cv2.putText(
+            img = annotation,
+            text = str(fps),
+            org = (8,13),
+            fontFace = cv2.FONT_HERSHEY_PLAIN,
+            fontScale = 1,
+            color = (125, 246, 55),
+            thickness = 1
+        )
 
-    screen_fps = cv2.putText(
-        img = annotation,
-        text = str(fps),
-        org = (8,13),
-        fontFace = cv2.FONT_HERSHEY_PLAIN,
-        fontScale = 1,
-        color = (125, 246, 55),
-        thickness = 1
-    )
+        screen_fps_trigger = cv2.putText(
+            img = screen_fps,
+            text = "TBot: " + str(triggerbot),
+            org = (8,30),
+            fontFace= cv2.FONT_HERSHEY_PLAIN,
+            fontScale= 1,
+            color= (125, 246, 55),
+            thickness= 1
+        )
 
-    screen_fps_trigger = cv2.putText(
-        img = screen_fps,
-        text = "TBot: " + str(triggerbot),
-        org = (8,30),
-        fontFace= cv2.FONT_HERSHEY_PLAIN,
-        fontScale= 1,
-        color= (125, 246, 55),
-        thickness= 1
-    )
-
-    screen_fps_trigger_aim = cv2.putText(
-        img = screen_fps_trigger,
-        text = "AimBot: " + str(aim_assist),
-        org = (8,45),
-        fontFace= cv2.FONT_HERSHEY_PLAIN,
-        fontScale= 1,
-        color= (125, 246, 55),
-        thickness= 1
-    )
-    try:
-        cv2.imshow("frame",screen_fps_trigger_aim)
-    except:
-        pass
-    
-    if(cv2.waitKey(1) == ord('l')):
-        cv2.destroyAllWindows()
-        break
-    
+        screen_fps_trigger_aim = cv2.putText(
+            img = screen_fps_trigger,
+            text = "AimBot: " + str(aim_assist),
+            org = (8,45),
+            fontFace= cv2.FONT_HERSHEY_PLAIN,
+            fontScale= 1,
+            color= (125, 246, 55),
+            thickness= 1
+        )
+        try:
+            cv2.imshow("frame",screen_fps_trigger_aim)
+        except:
+            pass
+        
+        if(cv2.waitKey(1) == ord(closeui_key)):
+            cv2.destroyAllWindows()
+            break
+        

@@ -1,66 +1,32 @@
+# Import necessary libraries
+import numpy as np
 import cv2
-import matplotlib.pyplot as plt
-import d3dshot
-import time
-import numpy
+import os
 
-d = d3dshot.create(capture_output="numpy")
-img = d.screenshot()
-img = img[:, :, ::-1].copy()
-# img = cv2.imread(file)
+# Load image
+image = cv2.imread(r"Example-Images\uXcbt9Y321.jpg")
 
-B,G,R = cv2.split(img)
+# Get height and width of the image
+height, width, _ = image.shape
 
-_, thresh = cv2.threshold(R, 180, 255, cv2.ADAPTIVE_THRESH_MEAN_C)
+# Define the pink color range
+lower_pink = np.array([100, 30, 130])
+upper_pink = np.array([255, 90, 190])
+# 153 57 121
+# 151 69 167
+# Create a mask for the pink color range
+mask = cv2.inRange(image, lower_pink, upper_pink)
 
-contours, _ = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+# Invert the mask to select all colors except pink
+mask_inv = cv2.bitwise_not(mask)
 
-R = cv2.applyColorMap(R, cv2.COLORMAP_HOT)
+# Convert the selected colors to grayscale
+gray_image = cv2.cvtColor(cv2.bitwise_and(image, image, mask=mask_inv), cv2.COLOR_BGR2GRAY)
 
-cv2.drawContours(R, contours, -1, (0, 255, 0), 3)
+# Overlay the grayscale image over the mask
+overlayed_image = cv2.addWeighted(gray_image, 0.5, mask, 0.5, 0)
 
-
-cv2.imshow("image", R)
-
-
-
-# #import cv2
-# import os
-# import time
-
-# time.sleep(0.5)
-
-# os.system('cls')
-
-# print("|| Input pictures directory (Default Pictures/) ||\n|>| ", end="", flush=True)
-# inpath = input()
-
-# if inpath == "":
-#     print("|| Using default directory ||")
-#     inpath = "Picures/"
-# elif os.path.exists(inpath):
-#     print("|| Found directory ||")
-# else:
-#     print("|| Invalid directory? ||")
-#     _ = input()
-#     quit()
-
-# time.sleep(1)
-# os.system('cls')
-
-# print("|| Output pictures directory (Default ProPictures/) ||\n|>| ", end="", flush=True)
-# outpath = input()
-
-# if outpath == "":
-#     print("|| Using default directory ||")
-#     outpath = "ProPicures/"
-# elif os.path.exists(outpath):
-#     print("|| Found directory ||")
-# else:
-#     print("|| Invalid directory? ||")
-#     _ = input()
-#     quit()
-
-# time.sleep(1)
-
-# print("|S| Output Size |S|\n|1| Origional\n|2| 960x540\n|3| 640x360\n|4|")
+# Display the modified image
+cv2.imshow('Modified Image', mask)
+cv2.waitKey(0)
+cv2.destroyAllWindows()

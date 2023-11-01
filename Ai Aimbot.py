@@ -39,7 +39,7 @@ from tkinter.filedialog import askopenfilename
 
 
 Tk().withdraw()
-ModelPath = askopenfilename(filetypes=[("Model File", "*.pt")])
+ModelPath = askopenfilename(filetypes=[("Model File", "*.pt *.onnx *.engine")])
 
 
 def cooldown(cooldown_bool,wait):

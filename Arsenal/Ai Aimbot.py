@@ -75,7 +75,7 @@ while True:
     if type(screenshot) == np.ndarray:
         screenshot = cv2.inRange(screenshot, lower_pink, upper_pink)
         screenshot = cv2.cvtColor(screenshot, cv2.COLOR_GRAY2BGR)
-        df = model.predict(source=screenshot, verbose=False, device=0)
+        df = model.predict(source=screenshot, verbose=False)
         annotation = df[0].plot()
         boxes = df[0].boxes
         df = 0

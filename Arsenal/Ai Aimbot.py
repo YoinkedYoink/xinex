@@ -2,10 +2,11 @@ ModelConfidence = 0.65
 MaxDetections = 2
 UseHalfFloat = True
 
-aimSpeed = 1
+aimSpeed = 0.9
 actRange = 900
 headshot = True
 aimPercision = 0.85
+mouseMoveDelay = 0.03
 
 AimMethod = 1  # 1. Closest To Mouse
                # 2. Biggest Bounding Box
@@ -32,9 +33,14 @@ import time
 import math
 import keyboard
 import threading
+import sys
 from matplotlib import cm
 import win32api, win32con, win32gui
 import ctypes
+from PyQt5.QtGui import QImage, QPixmap
+from PyQt5 import QtCore
+from PyQt5.QtCore import QTimer
+from PyQt5.QtWidgets import QApplication, QDesktopWidget, QMainWindow, QLabel, QVBoxLayout, QWidget
 from tkinter import *
 from tkinter.filedialog import askopenfilename
 
@@ -54,6 +60,8 @@ def cooldown(cooldown_bool,wait):
 region = (int(MONITOR_WIDTH/2-MONITOR_WIDTH/MONITOR_SCALE/2),int(MONITOR_HEIGHT/2-MONITOR_HEIGHT/MONITOR_SCALE/2),int(MONITOR_WIDTH/2+MONITOR_WIDTH/MONITOR_SCALE/2),int(MONITOR_HEIGHT/2+MONITOR_HEIGHT/MONITOR_SCALE/2))
 x,y,width,height = region
 screenshot_centre = [int((width-x)/2),int((height-y)/2)]
+emptynumpy = np.zeros((height, width, 4), dtype=np.uint8)
+emptynumpy[:,:,3] = 0
 camera = dxcam.create()
 triggerbot = False
 trigerbot_toggle = [True]
@@ -79,7 +87,7 @@ def aimbot(xdif, ydif):
     xdif=0
     ydif=0
     send_next[0] = False
-    thread = threading.Thread(target=cooldown, args=(send_next,0.01,))
+    thread = threading.Thread(target=cooldown, args=(send_next,mouseMoveDelay,))
     thread.start()
     
 def triggerboot():
@@ -87,8 +95,51 @@ def triggerboot():
     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN,screenshot_centre[0],screenshot_centre[1],0,0)
     time.sleep(0.05)
     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP,screenshot_centre[0],screenshot_centre[1],0,0)    
-    print("ended")
     TryTrig[0] = True
+    
+def GUIRun():
+    class MainWindow(QMainWindow):
+        def __init__(self):
+            super().__init__()
+            
+            self.setWindowTitle("Belllo")
+            self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
+            self.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents, True)
+            self.setAttribute(QtCore.Qt.WA_NoChildEventsForParent, True)
+            self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)
+
+            # Create a label to display the image
+            self.label = QLabel(self)
+            self.setCentralWidget(self.label)
+            self.center()
+
+            # Create a timer to periodically update the image
+            self.timer = QTimer()
+            self.timer.timeout.connect(self.update_image)
+            self.timer.start(10) # Update every 10ms
+
+        def center(self):
+            qr = self.frameGeometry()
+            cp = QDesktopWidget().availableGeometry().center()
+            qr.moveCenter(cp)
+            self.move(qr.topLeft())
+        
+        def update_image(self):
+            if annotation is not None:
+                # Convert the new numpy array to a QImage
+                new_qimage = QImage(annotation.data, annotation.shape[1], annotation.shape[0], annotation.strides[0], QImage.Format.Format_ARGB8565_Premultiplied)
+
+                # Convert the QImage to a QPixmap
+                new_qpixmap = QPixmap.fromImage(new_qimage)
+
+                # Update the QPixmap in the QLabel
+                self.label.setPixmap(new_qpixmap)
+
+    if __name__ == '__main__':
+        app = QApplication(sys.argv)
+        ex = MainWindow()
+        ex.show()
+        sys.exit(app.exec_())
         
 while True:
     close_p_dist = 100000000
@@ -98,7 +149,7 @@ while True:
         screenshot = cv2.inRange(screenshot, lower_pink, upper_pink)
         screenshot = cv2.cvtColor(screenshot, cv2.COLOR_GRAY2BGR)
         df = model.predict(source=screenshot, verbose=False)
-        annotation = df[0].plot()
+        annotation = df[0].plot(img=emptynumpy)
         boxes = df[0].boxes
         df = 0
 
@@ -154,7 +205,6 @@ while True:
         head_cent_list = [(xmax+xmin)/2,((ymax - ymin)/5)+ymin]
         if triggerbot == True and TryTrig[0] == True and screenshot_centre[0] in range(int(xmin),int(xmax)) and screenshot_centre[1] in range(int(ymin),int(ymax)):
             TryTrig[0] = False
-            print("Started")
             threading.Thread(target=triggerboot).start()
         if aim_assist == True and close_p_dist < actRange and send_next[0] == True:
             if screenshot_centre[0] in range(int(xmin),int(xmax)) and screenshot_centre[1] in range(int(ymin),int(ymax)):
@@ -174,43 +224,45 @@ while True:
             threading.Thread(target=aimbot, args=(xdif,ydif)).start()
 
     if ShowGUI == True:
-        screen_fps = cv2.putText(
-            img = annotation,
-            text = str(fps),
-            org = (8,13),
-            fontFace = cv2.FONT_HERSHEY_PLAIN,
-            fontScale = 1,
-            color = (125, 246, 55),
-            thickness = 1
-        )
+        ShowGUI = False
+        threading.Thread(target=GUIRun).start()
+        # screen_fps = cv2.putText(
+        #     img = annotation,
+        #     text = str(fps),
+        #     org = (8,13),
+        #     fontFace = cv2.FONT_HERSHEY_PLAIN,
+        #     fontScale = 1,
+        #     color = (125, 246, 55),
+        #     thickness = 1
+        # )
 
-        screen_fps_trigger = cv2.putText(
-            img = screen_fps,
-            text = "TBot: " + str(triggerbot),
-            org = (8,30),
-            fontFace= cv2.FONT_HERSHEY_PLAIN,
-            fontScale= 1,
-            color= (125, 246, 55),
-            thickness= 1
-        )
+        # screen_fps_trigger = cv2.putText(
+        #     img = screen_fps,
+        #     text = "TBot: " + str(triggerbot),
+        #     org = (8,30),
+        #     fontFace= cv2.FONT_HERSHEY_PLAIN,
+        #     fontScale= 1,
+        #     color= (125, 246, 55),
+        #     thickness= 1
+        # )
 
-        screen_fps_trigger_aim = cv2.putText(
-            img = screen_fps_trigger,
-            text = "AimBot: " + str(aim_assist),
-            org = (8,45),
-            fontFace= cv2.FONT_HERSHEY_PLAIN,
-            fontScale= 1,
-            color= (125, 246, 55),
-            thickness= 1
-        )
-        try:
-            cv2.imshow("frame",screen_fps_trigger_aim)
-        except:
-            pass
+        # screen_fps_trigger_aim = cv2.putText(
+        #     img = screen_fps_trigger,
+        #     text = "AimBot: " + str(aim_assist),
+        #     org = (8,45),
+        #     fontFace= cv2.FONT_HERSHEY_PLAIN,
+        #     fontScale= 1,
+        #     color= (125, 246, 55),
+        #     thickness= 1
+        # )
+        # try:
+        #     cv2.imshow("frame",screen_fps_trigger_aim)
+        # except:
+        #     pass
         
-        if(cv2.waitKey(1) == ord(closeui_key)):
-            cv2.destroyAllWindows()
-            break
+        # if(cv2.waitKey(1) == ord(closeui_key)):
+        #     cv2.destroyAllWindows()
+        #     break
     
     def fpscount():
         global fps

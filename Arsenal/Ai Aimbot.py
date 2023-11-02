@@ -1,10 +1,11 @@
-ModelConfidence = 0.4
-MaxDetections = 5
-UseHalfFloat = False
+ModelConfidence = 0.65
+MaxDetections = 2
+UseHalfFloat = True
 
 aimSpeed = 1
 actRange = 900
 headshot = True
+aimPercision = 0.85
 
 AimMethod = 1  # 1. Closest To Mouse
                # 2. Biggest Bounding Box
@@ -14,8 +15,6 @@ triggerbot_key = 'n'
 aimbot_key = 'x'
 closeui_key = 'p'
 
-MONITOR_WIDTH = 1920
-MONITOR_HEIGHT = 1080
 MONITOR_SCALE = 4
 ShowGUI = False
 
@@ -23,6 +22,8 @@ import numpy as np
 lower_pink = np.array([100, 0, 110])
 upper_pink = np.array([255, 100, 255])
 
+print("\033c", end='')
+print("Importing dependencies")
 import dxcam
 from ultralytics import YOLO
 #from PIL import Image, ImageTk
@@ -33,14 +34,17 @@ import keyboard
 import threading
 from matplotlib import cm
 import win32api, win32con, win32gui
+import ctypes
 from tkinter import *
 from tkinter.filedialog import askopenfilename
 
+MONITOR_WIDTH = ctypes.windll.user32.GetSystemMetrics(0)
+MONITOR_HEIGHT = ctypes.windll.user32.GetSystemMetrics(1)
 
+print("Monitor resolution: " + str(MONITOR_WIDTH) +"x"+ str(MONITOR_HEIGHT))
 
 Tk().withdraw()
 ModelPath = askopenfilename(filetypes=[("Model File", "*.pt *.onnx *.engine")])
-
 
 def cooldown(cooldown_bool,wait):
     time.sleep(wait)
@@ -67,7 +71,25 @@ start_time = time.time()
 PussyHole = 1
 counter = 1
 fps = 0
+TryTrig = [True]
 
+def aimbot(xdif, ydif):
+    if send_next[0] == True:
+        win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, int(xdif),int(ydif),0,0)
+    xdif=0
+    ydif=0
+    send_next[0] = False
+    thread = threading.Thread(target=cooldown, args=(send_next,0.01,))
+    thread.start()
+    
+def triggerboot():
+    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP,screenshot_centre[0],screenshot_centre[1],0,0)
+    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN,screenshot_centre[0],screenshot_centre[1],0,0)
+    time.sleep(0.05)
+    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP,screenshot_centre[0],screenshot_centre[1],0,0)    
+    print("ended")
+    TryTrig[0] = True
+        
 while True:
     close_p_dist = 100000000
     close_p = -1
@@ -79,22 +101,6 @@ while True:
         annotation = df[0].plot()
         boxes = df[0].boxes
         df = 0
-
-    def fpscount():
-        global fps
-        fps = fps
-        global start_time, PussyHole, counter
-        counter += 1
-        if(time.time() - start_time) > PussyHole:
-            fpsnum = int(counter/(time.time()-start_time))
-            fps = "Fps: "+ str(int(counter/(time.time()-start_time)))
-            if fpsnum > 700:
-                print("Likely Idle")
-            else:
-                print(fps)
-            counter = 0
-            start_time = time.time()
-    fpscount()
 
     for i in range (0,MaxDetections):
         try:
@@ -115,7 +121,7 @@ while True:
 
             cv2.rectangle(screenshot,(xmin,ymin),(xmax,ymax),(0,0,255),3)
         except:
-            print("",end="")
+            pass
 
     if keyboard.is_pressed(triggerbot_key):
         if trigerbot_toggle[0] == True:
@@ -146,23 +152,26 @@ while True:
 
         body_cent_list = [(xmax+xmin)/2,(ymax+ymin)/2]
         head_cent_list = [(xmax+xmin)/2,((ymax - ymin)/5)+ymin]
-        if triggerbot == True and screenshot_centre[0] in range(int(xmin),int(xmax)) and screenshot_centre[1] in range(int(ymin),int(ymax)):
-            win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP,screenshot_centre[0],screenshot_centre[1],0,0)
-            win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN,screenshot_centre[0],screenshot_centre[1],0,0)
-            time.sleep(0.05)
-            win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP,screenshot_centre[0],screenshot_centre[1],0,0)
+        if triggerbot == True and TryTrig[0] == True and screenshot_centre[0] in range(int(xmin),int(xmax)) and screenshot_centre[1] in range(int(ymin),int(ymax)):
+            TryTrig[0] = False
+            print("Started")
+            threading.Thread(target=triggerboot).start()
         if aim_assist == True and close_p_dist < actRange and send_next[0] == True:
-            if headshot == True:
-                xdif = (head_cent_list[0] - screenshot_centre[0]) * aimSpeed
-                ydif = (head_cent_list[1] - screenshot_centre[1]) * aimSpeed
+            if screenshot_centre[0] in range(int(xmin),int(xmax)) and screenshot_centre[1] in range(int(ymin),int(ymax)):
+                if headshot == True:
+                    xdif = (head_cent_list[0] - screenshot_centre[0]) * aimPercision
+                    ydif = (head_cent_list[1] - screenshot_centre[1]) * aimPercision
+                else:
+                    xdif = (body_cent_list[0] - screenshot_centre[0]) * aimPercision
+                    ydif = (body_cent_list[1] - screenshot_centre[1]) * aimPercision
             else:
-                xdif = (body_cent_list[0] - screenshot_centre[0]) * aimSpeed
-                ydif = (body_cent_list[1] - screenshot_centre[1]) * aimSpeed
-
-            win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, int(xdif),int(ydif),0,0)
-            send_next[0] = False
-            thread = threading.Thread(target=cooldown, args=(send_next,0.01,))
-            thread.start()
+                if headshot == True:
+                    xdif = (head_cent_list[0] - screenshot_centre[0]) * aimSpeed
+                    ydif = (head_cent_list[1] - screenshot_centre[1]) * aimSpeed
+                else:
+                    xdif = (body_cent_list[0] - screenshot_centre[0]) * aimSpeed
+                    ydif = (body_cent_list[1] - screenshot_centre[1]) * aimSpeed
+            threading.Thread(target=aimbot, args=(xdif,ydif)).start()
 
     if ShowGUI == True:
         screen_fps = cv2.putText(
@@ -202,4 +211,20 @@ while True:
         if(cv2.waitKey(1) == ord(closeui_key)):
             cv2.destroyAllWindows()
             break
+    
+    def fpscount():
+        global fps
+        fps = fps
+        global start_time, PussyHole, counter
+        counter += 1
+        if(time.time() - start_time) > PussyHole:
+            fpsnum = int(counter/(time.time()-start_time))
+            fps = "Fps: "+ str(int(counter/(time.time()-start_time)))
+            if fpsnum > 700:
+                print("Likely Idle")
+            else:
+                print(fps)
+            counter = 0
+            start_time = time.time()
+    fpscount()
         

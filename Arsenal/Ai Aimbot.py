@@ -1,12 +1,13 @@
-ModelConfidence = 0.65
-MaxDetections = 2
-UseHalfFloat = True
+ModelConfidence = 0.7
+MaxDetections = 5
+UseHalfFloat = False
 
-aimSpeed = 0.9
+aimSpeed = 1
 actRange = 900
 headshot = True
-aimPercision = 0.85
-mouseMoveDelay = 0.03
+headshotSplit = 3 #e.g. 3 == 1/3 from the top of bounding box
+aimPercision = 0.6
+mouseMoveDelay = 0.01
 
 AimMethod = 1  # 1. Closest To Mouse
                # 2. Biggest Bounding Box
@@ -80,15 +81,6 @@ PussyHole = 1
 counter = 1
 fps = 0
 TryTrig = [True]
-
-def aimbot(xdif, ydif):
-    if send_next[0] == True:
-        win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, int(xdif),int(ydif),0,0)
-    xdif=0
-    ydif=0
-    send_next[0] = False
-    thread = threading.Thread(target=cooldown, args=(send_next,mouseMoveDelay,))
-    thread.start()
     
 def triggerboot():
     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP,screenshot_centre[0],screenshot_centre[1],0,0)
@@ -101,12 +93,13 @@ def GUIRun():
     class MainWindow(QMainWindow):
         def __init__(self):
             super().__init__()
-            
-            self.setWindowTitle("Belllo")
+            self.setWindowTitle("Cool Overlay")
             self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
             self.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents, True)
             self.setAttribute(QtCore.Qt.WA_NoChildEventsForParent, True)
             self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)
+            self.setFixedHeight(height)
+            self.setFixedWidth(width)
 
             # Create a label to display the image
             self.label = QLabel(self)
@@ -141,10 +134,11 @@ def GUIRun():
         ex.show()
         sys.exit(app.exec_())
         
+camera.start(region,target_fps=60)
 while True:
     close_p_dist = 100000000
     close_p = -1
-    screenshot = camera.grab(region)
+    screenshot = camera.get_latest_frame()
     if type(screenshot) == np.ndarray:
         screenshot = cv2.inRange(screenshot, lower_pink, upper_pink)
         screenshot = cv2.cvtColor(screenshot, cv2.COLOR_GRAY2BGR)
@@ -202,7 +196,7 @@ while True:
         ymax = df[3]
 
         body_cent_list = [(xmax+xmin)/2,(ymax+ymin)/2]
-        head_cent_list = [(xmax+xmin)/2,((ymax - ymin)/5)+ymin]
+        head_cent_list = [(xmax+xmin)/2,((ymax - ymin)/headshotSplit)+ymin]
         if triggerbot == True and TryTrig[0] == True and screenshot_centre[0] in range(int(xmin),int(xmax)) and screenshot_centre[1] in range(int(ymin),int(ymax)):
             TryTrig[0] = False
             threading.Thread(target=triggerboot).start()
@@ -221,7 +215,14 @@ while True:
                 else:
                     xdif = (body_cent_list[0] - screenshot_centre[0]) * aimSpeed
                     ydif = (body_cent_list[1] - screenshot_centre[1]) * aimSpeed
-            threading.Thread(target=aimbot, args=(xdif,ydif)).start()
+            win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, int(xdif),int(ydif),0,0)
+            xdif=0
+            ydif=0
+            if mouseMoveDelay is not 0:
+                send_next[0] = False
+                thread = threading.Thread(target=cooldown, args=(send_next,mouseMoveDelay,))
+                thread.start()
+            
 
     if ShowGUI == True:
         ShowGUI = False

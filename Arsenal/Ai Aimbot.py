@@ -1,12 +1,12 @@
 ModelConfidence = 0.7
 MaxDetections = 5
-UseHalfFloat = False
+UseHalfFloat = True
 
-aimSpeed = 1
+aimSpeed = 0.99
 actRange = 900
 headshot = True
 headshotSplit = 3 #e.g. 3 == 1/3 from the top of bounding box
-aimPercision = 0.6
+aimPercision = 0.85
 mouseMoveDelay = 0.01
 
 AimMethod = 1  # 1. Closest To Mouse
@@ -18,6 +18,7 @@ aimbot_key = 'x'
 closeui_key = 'p'
 
 MONITOR_SCALE = 4
+target_fps = 50
 ShowGUI = False
 
 import numpy as np
@@ -134,7 +135,7 @@ def GUIRun():
         ex.show()
         sys.exit(app.exec_())
         
-camera.start(region,target_fps=60)
+camera.start(region,target_fps)
 while True:
     close_p_dist = 100000000
     close_p = -1

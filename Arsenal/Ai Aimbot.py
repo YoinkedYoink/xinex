@@ -1,13 +1,13 @@
-ModelConfidence = 0.7
+ModelConfidence = 0.85
 MaxDetections = 5
 UseHalfFloat = True
 
 aimSpeed = 0.99
 actRange = 900
 headshot = True
-headshotSplit = 3 #e.g. 3 == 1/3 from the top of bounding box
-aimPercision = 0.85
-mouseMoveDelay = 0.01
+headshotSplit = 4 #e.g. 3 == 1/3 from the top of bounding box
+aimPercision = 0.8
+mouseMoveDelay = 0.00001
 
 AimMethod = 1  # 1. Closest To Mouse
                # 2. Biggest Bounding Box
@@ -19,11 +19,11 @@ closeui_key = 'p'
 
 MONITOR_SCALE = 4
 target_fps = 50
-ShowGUI = False
+ShowGUI = True
 
 import numpy as np
-lower_pink = np.array([100, 0, 110])
-upper_pink = np.array([255, 100, 255])
+lower_pink = np.array([130, 0, 120]) # BRG
+upper_pink = np.array([255, 100, 230]) # BRG 
 
 print("\033c", end='')
 print("Importing dependencies")
@@ -42,7 +42,7 @@ import ctypes
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5 import QtCore
 from PyQt5.QtCore import QTimer
-from PyQt5.QtWidgets import QApplication, QDesktopWidget, QMainWindow, QLabel, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QApplication, QDesktopWidget, QMainWindow, QLabel, QVBoxLayout, QWidget, QPushButton
 from tkinter import *
 from tkinter.filedialog import askopenfilename
 
@@ -92,43 +92,64 @@ def triggerboot():
     
 def GUIRun():
     class MainWindow(QMainWindow):
+        def exitapp(self):
+            print("bye bye")
+            sys.exit(app.exec_())
+        
         def __init__(self):
             super().__init__()
             self.setWindowTitle("Cool Overlay")
             self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
-            self.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents, True)
-            self.setAttribute(QtCore.Qt.WA_NoChildEventsForParent, True)
-            self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)
-            self.setFixedHeight(height)
-            self.setFixedWidth(width)
-
-            # Create a label to display the image
-            self.label = QLabel(self)
-            self.setCentralWidget(self.label)
-            self.center()
-
-            # Create a timer to periodically update the image
+            #self.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents, True)
+            #self.setAttribute(QtCore.Qt.WA_NoChildEventsForParent, True)
+            self.setAttribute(QtCore.Qt.WA_ShowWithoutActivating)
+            self.setWindowFlags(QtCore.Qt.FramelessWindowHint 
+                                | QtCore.Qt.WindowStaysOnTopHint
+                                | QtCore.Qt.WindowDoesNotAcceptFocus
+                                #| QtCore.Qt.WindowTransparentForInput
+                                )
+            self.setFixedHeight(1080)
+            self.setFixedWidth(1920)
+            
+            exit = QPushButton('Exit', self)
+            exit.move(int(self.width()*0.9),int(self.height()*0.9))
+            exit.clicked.connect(self.exitapp)
+            
+            self.placehold = QPushButton("CLICK", self)
+            self.placehold.move(int(self.width()*0.5),int(self.height()*0.5))
+            self.placehold.clicked.connect(self.placeclick)
+            self.placehold.hide()
+            
+            self.settbutt = QPushButton('Settings', self)
+            self.settbutt.move(int(self.width()*0.8),int(self.height()*0.9))
+            self.settbutt.clicked.connect(self.opensett)
+            
+            self.stats = QLabel(self)
+            #label.setFrameStyle(QFrame.Panel | QFrame.Sunken)
+            self.stats.setText("oop")
+            self.stats.move(int(self.width()/10),int(self.height()/10))
+            
             self.timer = QTimer()
-            self.timer.timeout.connect(self.update_image)
-            self.timer.start(10) # Update every 10ms
-
-        def center(self):
-            qr = self.frameGeometry()
-            cp = QDesktopWidget().availableGeometry().center()
-            qr.moveCenter(cp)
-            self.move(qr.topLeft())
+            self.timer.timeout.connect(self.update_ui)
+            self.timer.start(10)
+            
+        def update_ui(self):
+            self.stats.setText("fps: "+ str(fps) + "\naim: "+ str(aim_assist) +"\nhit: " + str(triggerbot))
+            
+        def opensett(self):
+            print("Opening settings")
+            self.placehold.show()
+            
+        def placeclick(self):
+            print("clickclack")
+            self.placehold.hide()
         
-        def update_image(self):
-            if annotation is not None:
-                # Convert the new numpy array to a QImage
-                new_qimage = QImage(annotation.data, annotation.shape[1], annotation.shape[0], annotation.strides[0], QImage.Format.Format_ARGB8565_Premultiplied)
-
-                # Convert the QImage to a QPixmap
-                new_qpixmap = QPixmap.fromImage(new_qimage)
-
-                # Update the QPixmap in the QLabel
-                self.label.setPixmap(new_qpixmap)
-
+        # def center(self):
+        #     qr = self.frameGeometry()
+        #     cp = QDesktopWidget().availableGeometry().center()
+        #     qr.moveCenter(cp)
+        #     self.move(qr.topLeft())
+        
     if __name__ == '__main__':
         app = QApplication(sys.argv)
         ex = MainWindow()
@@ -219,7 +240,7 @@ while True:
             win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, int(xdif),int(ydif),0,0)
             xdif=0
             ydif=0
-            if mouseMoveDelay is not 0:
+            if mouseMoveDelay != 0:
                 send_next[0] = False
                 thread = threading.Thread(target=cooldown, args=(send_next,mouseMoveDelay,))
                 thread.start()

@@ -3,10 +3,10 @@ MaxDetections = 5
 UseHalfFloat = True
 
 aimSpeed = 0.99
-actRange = 900
+actRange = 200 #fov of aimbot
 headshot = True
 headshotSplit = 4 #e.g. 3 == 1/3 from the top of bounding box
-aimPercision = 0.8
+aimPercision = 0.95
 mouseMoveDelay = 0.00001
 
 AimMethod = 1  # 1. Closest To Mouse
@@ -17,7 +17,7 @@ triggerbot_key = 'n'
 aimbot_key = 'x'
 closeui_key = 'p'
 
-MONITOR_SCALE = 4
+MONITOR_SCALE = 3
 target_fps = 50
 ShowGUI = True
 
@@ -39,7 +39,7 @@ import sys
 from matplotlib import cm
 import win32api, win32con, win32gui
 import ctypes
-from PyQt5.QtGui import QImage, QPixmap
+from PyQt5.QtGui import QImage, QPixmap, QPainter, QBrush, QPen
 from PyQt5 import QtCore
 from PyQt5.QtCore import QTimer, QThread
 from PyQt5.QtWidgets import QApplication, QDesktopWidget, QMainWindow, QLabel, QVBoxLayout, QWidget, QPushButton
@@ -188,7 +188,7 @@ def GUIRun():
                     counter += 1
                     if(time.time() - start_time) > PussyHole:
                         fps = str(int(counter/(time.time()-start_time)))
-                        if int(fps) > 700 or int(fps) <= 3:
+                        if int(fps) > 700 or int(fps) <= 5:
                             fps = "Likely Idle"
                         else:
                             print(fps)
@@ -216,7 +216,7 @@ def GUIRun():
             self.setFixedWidth(1920)
             
             exit = QPushButton('Exit', self)
-            exit.move(int(self.width()*0.9),int(self.height()*0.9))
+            exit.move(int(self.width()*0.93),int(self.height()*0.95))
             exit.clicked.connect(self.exitapp)
             
             self.placehold = QPushButton("CLICK", self)
@@ -225,13 +225,15 @@ def GUIRun():
             self.placehold.hide()
             
             self.settbutt = QPushButton('Settings', self)
-            self.settbutt.move(int(self.width()*0.8),int(self.height()*0.9))
+            self.settbutt.move(int(self.width()*0.88),int(self.height()*0.95))
             self.settbutt.clicked.connect(self.opensett)
             
             self.stats = QLabel(self)
             #label.setFrameStyle(QFrame.Panel | QFrame.Sunken)
             self.stats.setText("oop")
-            self.stats.move(int(self.width()/10),int(self.height()/10))
+            self.stats.move(int(self.width()/15),int(self.height()/15))
+            self.stats.resize(70,50)
+            self.stats.setStyleSheet('background-color: yellow;border: 1px solid red')
             
             self.timer = QTimer()
             self.timer.timeout.connect(self.update_ui)
@@ -252,7 +254,13 @@ def GUIRun():
         #     qr = self.frameGeometry()
         #     cp = QDesktopWidget().availableGeometry().center()
         #     qr.moveCenter(cp)
-        #     self.move(qr.topLeft())    
+        #     self.move(qr.topLeft())   
+        
+        def paintEvent(self, event):
+            painter = QPainter(self)
+            painter.setPen(QPen())
+            painter.drawEllipse(int((MONITOR_WIDTH/2)-actRange),int((MONITOR_HEIGHT/2)-actRange),actRange*2,actRange*2)
+            
         
     if __name__ == '__main__':
         app = QApplication(sys.argv)

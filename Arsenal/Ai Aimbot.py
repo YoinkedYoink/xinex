@@ -3,8 +3,8 @@ MaxDetections = 5
 UseHalfFloat = True
 
 aimSpeed = 0.99
-actRange = 200 #fov of aimbot
-headshot = True
+actRange = 150 #fov of aimbot
+headshot = False
 headshotSplit = 4 #e.g. 3 == 1/3 from the top of bounding box
 aimPercision = 0.95
 mouseMoveDelay = 0.00001
@@ -17,7 +17,7 @@ triggerbot_key = 'n'
 aimbot_key = 'x'
 closeui_key = 'p'
 
-MONITOR_SCALE = 3
+MONITOR_SCALE = 4
 target_fps = 50
 ShowGUI = True
 
@@ -29,7 +29,6 @@ print("\033c", end='')
 print("Importing dependencies")
 import dxcam
 from ultralytics import YOLO
-#from PIL import Image, ImageTk
 import cv2
 import time
 import math
@@ -42,7 +41,7 @@ from PyQt5.QtGui import QPainter, QPen
 from PyQt5 import QtCore
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QPushButton
-from tkinter import *
+from tkinter import Tk
 from tkinter.filedialog import askopenfilename
 
 MONITOR_WIDTH = ctypes.windll.user32.GetSystemMetrics(0)
@@ -211,19 +210,24 @@ def GUIRun():
                                 | QtCore.Qt.WindowDoesNotAcceptFocus
                                 #| QtCore.Qt.WindowTransparentForInput
                                 )
-            self.setFixedHeight(1080)
-            self.setFixedWidth(1920)
+            self.setFixedHeight(int(MONITOR_HEIGHT))
+            self.setFixedWidth(int(MONITOR_WIDTH))
             
             exit = QPushButton('Exit', self)
             exit.move(int(self.width()*0.93),int(self.height()*0.95))
             exit.clicked.connect(self.exitapp)
             
-            self.placehold = QPushButton("CLICK", self)
-            self.placehold.move(int(self.width()*0.5),int(self.height()*0.5))
-            self.placehold.clicked.connect(self.placeclick)
-            self.placehold.hide()
+            self.TriggerButton = QPushButton("Triggerbot: "+str(triggerbot), self)
+            self.TriggerButton.move(int(self.width()*0.45),int(self.height()*0.45))
+            self.TriggerButton.clicked.connect(self.TriggerButtonFunc)
+            self.TriggerButton.hide()
             
-            self.settbutt = QPushButton('Settings', self)
+            self.HeadshotButton = QPushButton("Headshot: "+str(headshot), self)
+            self.HeadshotButton.move(int(self.width()*0.5),int(self.height()*0.45))
+            self.HeadshotButton.clicked.connect(self.HeadShotButtonFunc)
+            self.HeadshotButton.hide()
+            
+            self.settbutt = QPushButton('Open Sett', self)
             self.settbutt.move(int(self.width()*0.88),int(self.height()*0.95))
             self.settbutt.clicked.connect(self.opensett)
             
@@ -243,11 +247,26 @@ def GUIRun():
             
         def opensett(self):
             print("Opening settings")
-            self.placehold.show()
+            if self.TriggerButton.isVisible() == False:
+                self.settbutt.setText("Close Sett")
+                self.TriggerButton.show()
+                self.HeadshotButton.show()
+            else:
+                self.settbutt.setText("Open Sett")
+                self.TriggerButton.hide()
+                self.HeadshotButton.hide()
             
-        def placeclick(self):
-            print("clickclack")
-            self.placehold.hide()
+        def TriggerButtonFunc(self):
+            global triggerbot
+            triggerbot = not triggerbot
+            print("Triggerbot: "+str(triggerbot))
+            self.TriggerButton.setText("Triggerbot: "+str(triggerbot))
+            
+        def HeadShotButtonFunc(self):
+            global headshot
+            headshot = not headshot
+            print("Headshot: "+str(headshot))
+            self.HeadshotButton.setText("Headshot: "+str(headshot))
         
         # def center(self):
         #     qr = self.frameGeometry()

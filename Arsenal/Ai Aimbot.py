@@ -36,13 +36,12 @@ import math
 import keyboard
 import threading
 import sys
-from matplotlib import cm
-import win32api, win32con, win32gui
+import win32api, win32con
 import ctypes
-from PyQt5.QtGui import QImage, QPixmap, QPainter, QBrush, QPen
+from PyQt5.QtGui import QPainter, QPen
 from PyQt5 import QtCore
-from PyQt5.QtCore import QTimer, QThread
-from PyQt5.QtWidgets import QApplication, QDesktopWidget, QMainWindow, QLabel, QVBoxLayout, QWidget, QPushButton
+from PyQt5.QtCore import QTimer
+from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QPushButton
 from tkinter import *
 from tkinter.filedialog import askopenfilename
 
@@ -265,7 +264,7 @@ def GUIRun():
     if __name__ == '__main__':
         app = QApplication(sys.argv)
         ex = MainWindow()
-        t = threading.Thread(target=MainWindow.actualclusterfuck)
+        t = threading.Thread(target=MainWindow.actualclusterfuck, daemon=True)
         t.start()
         ex.show()
         sys.exit(app.exec_())

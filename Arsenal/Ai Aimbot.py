@@ -1,13 +1,13 @@
-ModelConfidence = 0.95
+ModelConfidence = 0.65
 MaxDetections = 5
 UseHalfFloat = True
 
-aimSpeed = 0.99
+aimSpeed = 1
 actRange = 150 #fov of aimbot
 headshot = False
-headshotSplit = 4 #e.g. 3 == 1/3 from the top of bounding box
-aimPercision = 0.85
-mouseMoveDelay = 0.00001
+headshotSplit = 5 #e.g. 3 == 1/3 from the top of bounding box
+aimPercision = 1
+mouseMoveDelay = 0
 
 AimMethod = 1  # 1. Closest To Mouse
                # 2. Biggest Bounding Box
@@ -18,12 +18,12 @@ aimbot_key = 'x'
 closeui_key = 'p'
 
 MONITOR_SCALE = 4
-target_fps = 60
+target_fps = 55
 ShowGUI = True
 
 import numpy as np
-lower_pink = np.array([130, 0, 120]) # BRG
-upper_pink = np.array([255, 100, 230]) # BRG 
+lower_pink = np.array([180, 0, 180]) # BRG
+upper_pink = np.array([220, 100, 220]) # BRG 
 
 print("\033c", end='')
 print("Importing dependencies")
@@ -121,7 +121,7 @@ def GUIRun():
                             close_p_dist = distance
                             close_p = i
 
-                        cv2.rectangle(screenshot,(xmin,ymin),(xmax,ymax),(0,0,255),3)
+                        #cv2.rectangle(screenshot,(xmin,ymin),(xmax,ymax),(0,0,255),3)
                     except:
                         pass
 
@@ -160,15 +160,25 @@ def GUIRun():
                     if aim_assist == True and close_p_dist < actRange and send_next[0] == True:
                         if screenshot_centre[0] in range(int(xmin),int(xmax)) and screenshot_centre[1] in range(int(ymin),int(ymax)):
                             if headshot == True:
+                                if int(head_cent_list[1]) == int(ymin):
+                                    hitbuff = 1
+                                    print("added buffer")
+                                else:
+                                    hitbuff = 0
                                 xdif = (head_cent_list[0] - screenshot_centre[0]) * aimPercision
-                                ydif = (head_cent_list[1] - screenshot_centre[1]) * aimPercision
+                                ydif = (head_cent_list[1]+hitbuff - screenshot_centre[1]) * aimPercision
                             else:
                                 xdif = (body_cent_list[0] - screenshot_centre[0]) * aimPercision
                                 ydif = (body_cent_list[1] - screenshot_centre[1]) * aimPercision
                         else:
                             if headshot == True:
+                                if int(head_cent_list[1]) == int(ymin):
+                                    hitbuff = 1
+                                    print("added buffer")
+                                else:
+                                    hitbuff = 0
                                 xdif = (head_cent_list[0] - screenshot_centre[0]) * aimSpeed
-                                ydif = (head_cent_list[1] - screenshot_centre[1]) * aimSpeed
+                                ydif = (head_cent_list[1]+hitbuff - screenshot_centre[1]) * aimSpeed
                             else:
                                 xdif = (body_cent_list[0] - screenshot_centre[0]) * aimSpeed
                                 ydif = (body_cent_list[1] - screenshot_centre[1]) * aimSpeed
@@ -320,7 +330,7 @@ def GUIRun():
         def paintEvent(self, event):
             painter = QPainter(self)
             painter.setPen(QPen())
-            painter.drawEllipse(int((MONITOR_WIDTH/2)-actRange),int((MONITOR_HEIGHT/2)-actRange),actRange*2,actRange*2)
+            self.eclipse = painter.drawEllipse(int((MONITOR_WIDTH/2)-actRange),int((MONITOR_HEIGHT/2)-actRange),actRange*2,actRange*2)
             
         
     if __name__ == '__main__':

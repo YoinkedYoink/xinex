@@ -22,8 +22,8 @@ target_fps = 55
 ShowGUI = True
 
 import numpy as np
-lower_pink = np.array([180, 0, 180]) # BRG
-upper_pink = np.array([220, 100, 220]) # BRG 
+lower_pink = np.array([200, 0, 200]) # BRG
+upper_pink = np.array([201, 0, 201]) # BRG 
 
 print("\033c", end='')
 print("Importing dependencies")

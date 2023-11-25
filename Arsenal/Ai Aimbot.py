@@ -1,4 +1,4 @@
-ModelConfidence = 0.85
+ModelConfidence = 0.95
 MaxDetections = 5
 UseHalfFloat = True
 
@@ -6,7 +6,7 @@ aimSpeed = 0.99
 actRange = 150 #fov of aimbot
 headshot = False
 headshotSplit = 4 #e.g. 3 == 1/3 from the top of bounding box
-aimPercision = 0.95
+aimPercision = 0.85
 mouseMoveDelay = 0.00001
 
 AimMethod = 1  # 1. Closest To Mouse
@@ -18,7 +18,7 @@ aimbot_key = 'x'
 closeui_key = 'p'
 
 MONITOR_SCALE = 4
-target_fps = 50
+target_fps = 60
 ShowGUI = True
 
 import numpy as np
@@ -40,7 +40,7 @@ import ctypes
 from PyQt5.QtGui import QPainter, QPen
 from PyQt5 import QtCore
 from PyQt5.QtCore import QTimer
-from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QPushButton
+from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QPushButton, QSlider
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename
 
@@ -227,6 +227,30 @@ def GUIRun():
             self.HeadshotButton.clicked.connect(self.HeadShotButtonFunc)
             self.HeadshotButton.hide()
             
+            self.aimslider = QSlider(QtCore.Qt.Horizontal, self)
+            self.aimslider.setGeometry(QtCore.QRect(int(self.width()*0.45),int(self.height()*0.5),80,10))
+            self.aimslider.setRange(0,100)
+            self.aimslider.valueChanged.connect(self.aimsliderFunc)
+            self.aimslider.hide()
+            
+            self.aimsilderlabel = QLabel(self)
+            self.aimsilderlabel.setText(str(aimSpeed)+"x Aim Speed")
+            self.aimsilderlabel.move(int(self.width()*0.5),int(self.height()*0.5))
+            self.aimsilderlabel.setStyleSheet('background-color: white;border: 1px solid black')
+            self.aimsilderlabel.hide()
+            
+            self.Percissionaimslider = QSlider(QtCore.Qt.Horizontal, self)
+            self.Percissionaimslider.setGeometry(QtCore.QRect(int(self.width()*0.45),int(self.height()*0.55),80,10))
+            self.Percissionaimslider.setRange(0,100)
+            self.Percissionaimslider.valueChanged.connect(self.PercissionaimsliderFunc)
+            self.Percissionaimslider.hide()
+            
+            self.Percissionaimsilderlabel = QLabel(self)
+            self.Percissionaimsilderlabel.setText(str(aimSpeed)+"x Percission Aim")
+            self.Percissionaimsilderlabel.move(int(self.width()*0.5),int(self.height()*0.55))
+            self.Percissionaimsilderlabel.setStyleSheet('background-color: white;border: 1px solid black')
+            self.Percissionaimsilderlabel.hide()
+            
             self.settbutt = QPushButton('Open Sett', self)
             self.settbutt.move(int(self.width()*0.88),int(self.height()*0.95))
             self.settbutt.clicked.connect(self.opensett)
@@ -237,6 +261,7 @@ def GUIRun():
             self.stats.move(int(self.width()/15),int(self.height()/15))
             self.stats.resize(70,50)
             self.stats.setStyleSheet('background-color: yellow;border: 1px solid red')
+            self.stats.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents, True)
             
             self.timer = QTimer()
             self.timer.timeout.connect(self.update_ui)
@@ -251,10 +276,18 @@ def GUIRun():
                 self.settbutt.setText("Close Sett")
                 self.TriggerButton.show()
                 self.HeadshotButton.show()
+                self.aimslider.show()
+                self.aimsilderlabel.show()
+                self.Percissionaimslider.show()
+                self.Percissionaimsilderlabel.show()
             else:
                 self.settbutt.setText("Open Sett")
                 self.TriggerButton.hide()
                 self.HeadshotButton.hide()
+                self.aimslider.hide()
+                self.aimsilderlabel.hide()
+                self.Percissionaimslider.hide()
+                self.Percissionaimsilderlabel.hide()
             
         def TriggerButtonFunc(self):
             global triggerbot
@@ -267,6 +300,16 @@ def GUIRun():
             headshot = not headshot
             print("Headshot: "+str(headshot))
             self.HeadshotButton.setText("Headshot: "+str(headshot))
+            
+        def aimsliderFunc(self, val):
+            global aimSpeed
+            aimSpeed = val/100
+            self.aimsilderlabel.setText(str(aimSpeed)+"x Aim Speed")
+            
+        def PercissionaimsliderFunc(self, val):
+            global aimPercision
+            aimPercision = val/100
+            self.Percissionaimsilderlabel.setText(str(aimPercision)+"x Percission Aim")
         
         # def center(self):
         #     qr = self.frameGeometry()

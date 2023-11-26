@@ -13,8 +13,8 @@ You have to change the chracter outlines to pink (100 RED, 0 GREEN, 100 BLUE)
 1. All Done!
 
 
-Support me: 0x5a328f632774135133149a484b607f5fF552c4a7
+Support me: 0x5a328f632774135133149a484b607f5fF552c4a7  
             ^ETH & Polygon mainet accepted^
             
-Discord: YoinkedYoink#488
+Discord: YoinkedYoink#488  
          [Server Link](https://discord.gg/jMyVTHzNn2)

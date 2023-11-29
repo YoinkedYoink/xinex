@@ -154,9 +154,6 @@ def GUIRun():
 
                     body_cent_list = [(xmax+xmin)/2,(ymax+ymin)/2]
                     head_cent_list = [(xmax+xmin)/2,((ymax - ymin)/headshotSplit)+ymin]
-                    if triggerbot == True and TryTrig[0] == True and screenshot_centre[0] in range(int(xmin),int(xmax)) and screenshot_centre[1] in range(int(ymin),int(ymax)):
-                        TryTrig[0] = False
-                        threading.Thread(target=triggerboot).start()
                     if aim_assist == True and close_p_dist < actRange and send_next[0] == True:
                         if screenshot_centre[0] in range(int(xmin),int(xmax)) and screenshot_centre[1] in range(int(ymin),int(ymax)):
                             if headshot == True:
@@ -189,6 +186,11 @@ def GUIRun():
                             send_next[0] = False
                             thread = threading.Thread(target=cooldown, args=(send_next,mouseMoveDelay,))
                             thread.start()
+                            
+                    if triggerbot == True and TryTrig[0] == True and screenshot_centre[0] in range(int(xmin),int(xmax)) and screenshot_centre[1] in range(int(ymin),int(ymax)):
+                        TryTrig[0] = False
+                        threading.Thread(target=triggerboot).start()
+                        
                 def fpscount():
                     global fps
                     fps = fps

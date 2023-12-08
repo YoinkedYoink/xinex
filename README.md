@@ -13,7 +13,7 @@ You have to change the chracter outlines to pink (100 RED, 0 GREEN, 100 BLUE)
    **FOR AMD/INTEL GPUS**  
    You'll have slightly worse performance  
   
-1. go to [PyTorch](https://pytorch.org/get-started/locally/) and input the correct options (CUDA 12.2 for Nvidia, CPU for AMD/Intel)  
+1. go to [PyTorch](https://pytorch.org/get-started/locally/) and input the correct options (CUDA 12.1 for Nvidia, CPU for AMD/Intel)  
 1. open cmd and type: ```pip install numpy opencv-python pyqt5 keyboard pywin32 dxcam ultralytics```  
 1. Run "Ai Aimbot.py" and choose either "best.pt" or "best.onnx" from models (First run will take a bit)
 1. All Done!

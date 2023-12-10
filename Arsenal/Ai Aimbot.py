@@ -24,8 +24,8 @@ target_fps = 45
 ShowGUI = True
 
 import numpy as np
-lower_pink = np.array([200, 0, 200]) # BRG
-upper_pink = np.array([201, 0, 201]) # BRG 
+lower_pink = np.array([200, 0, 200]) # BGR
+upper_pink = np.array([201, 0, 201]) # BGR 
 
 print("\033c", end='')
 print("Importing dependencies")
@@ -360,7 +360,7 @@ def GUIRun():
         
         def paintEvent(self, event):
             painter = QPainter(self)
-            painter.setPen(QPen())
+            painter.setPen(QPen(QtCore.Qt.black,1,QtCore.Qt.DashLine))
             self.eclipse = painter.drawEllipse(int((MONITOR_WIDTH/2)-actRange),int((MONITOR_HEIGHT/2)-actRange),actRange*2,actRange*2)
             
         

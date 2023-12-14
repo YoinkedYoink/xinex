@@ -303,7 +303,7 @@ def GUIRun():
             self.stats.setText("oop")
             self.stats.move(int(self.width()/15),int(self.height()/15))
             self.stats.resize(70,50)
-            self.stats.setStyleSheet('background-color: yellow;border: 1px solid red')
+            self.stats.setStyleSheet('background-color: rgba(255,255,255,60);border: 1px solid rgba(255,0,0,90)')
             self.stats.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents, True)
             
             self.timer = QTimer()

@@ -42,7 +42,7 @@ import ctypes
 from PyQt5.QtGui import QPainter, QPen, QPixmap, QImage
 from PyQt5 import QtCore
 from PyQt5.QtCore import QTimer
-from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QPushButton, QSlider
+from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QPushButton, QSlider, QGraphicsEllipseItem
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename
 
@@ -220,6 +220,7 @@ def GUIRun():
             
             exit = QPushButton('Exit', self)
             exit.move(int(self.width()*0.93),int(self.height()*0.95))
+            exit.setStyleSheet('background-color: rgba(255,255,255,60);border: 1px solid rgba(255,0,0,90)')
             exit.clicked.connect(self.exitapp)
             
             self.TriggerButton = QPushButton("Triggerbot: "+str(triggerbot), self)
@@ -280,8 +281,21 @@ def GUIRun():
             self.minmovelabel.setStyleSheet('background-color: white;border: 1px solid black')
             self.minmovelabel.hide()
             
+            self.fovsizeslider = QSlider(QtCore.Qt.Horizontal, self)
+            self.fovsizeslider.setGeometry(QtCore.QRect(int(self.width()*0.45),int(self.height()*0.7),80,10))
+            self.fovsizeslider.setRange(1,500)
+            self.fovsizeslider.valueChanged.connect(self.FovChangeFunc)
+            self.fovsizeslider.hide()
+            
+            self.fovsizelabel = QLabel(self)
+            self.fovsizelabel.setText(str(actRange)+"px FOV")
+            self.fovsizelabel.move(int(self.width()*0.5),int(self.height()*0.7))
+            self.fovsizelabel.setStyleSheet('background-color: white;border: 1px solid black')
+            self.fovsizelabel.hide()
+            
             self.settbutt = QPushButton('Open Sett', self)
             self.settbutt.move(int(self.width()*0.88),int(self.height()*0.95))
+            self.settbutt.setStyleSheet('background-color: rgba(255,255,255,60);border: 1px solid rgba(255,0,0,90)')
             self.settbutt.clicked.connect(self.opensett)
             
             self.stats = QLabel(self)
@@ -295,7 +309,7 @@ def GUIRun():
             self.timer = QTimer()
             self.timer.timeout.connect(self.update_ui)
             self.timer.start(10)
-            
+                        
         def update_ui(self):
             self.stats.setText("fps: "+ str(fps) + "\naim: "+ str(aim_assist) +"\nhit: " + str(triggerbot))
             
@@ -313,6 +327,8 @@ def GUIRun():
                 self.boxexpanderlabel.show()
                 self.minmoveslider.show()
                 self.minmovelabel.show()
+                self.fovsizeslider.show()
+                self.fovsizelabel.show()
             else:
                 self.settbutt.setText("Open Sett")
                 self.TriggerButton.hide()
@@ -325,6 +341,8 @@ def GUIRun():
                 self.boxexpanderlabel.hide()
                 self.minmoveslider.hide()
                 self.minmovelabel.hide()
+                self.fovsizeslider.hide()
+                self.fovsizelabel.hide()
             
         def TriggerButtonFunc(self):
             global triggerbot
@@ -357,6 +375,12 @@ def GUIRun():
             global minmove
             minmove = val
             self.minmovelabel.setText(str(minmove)+"px Min Move")
+            
+        def FovChangeFunc(self, val):
+            global actRange
+            actRange = val
+            self.fovsizelabel.setText(str(actRange)+"px FOV")
+            self.update()
         
         def paintEvent(self, event):
             painter = QPainter(self)

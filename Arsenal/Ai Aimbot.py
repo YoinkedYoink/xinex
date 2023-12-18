@@ -523,36 +523,37 @@ def GUIRun():
                 self.stats.setVisible(False)
             
         def menuswitcher(self, menu):
-            self.GamesSettings.hide()
-            self.GamesButton.setStyleSheet("background-color: rgb(116, 0, 113); border-style: inset; border-width: 2px; border-radius: 5px; border-color: rgb(93, 0, 90)")
-            self.AimbotSettings.hide()
-            self.AimbotButton.setStyleSheet("background-color: rgb(116, 0, 113); border-style: inset; border-width: 2px; border-radius: 5px; border-color: rgb(93, 0, 90)")
-            self.VisualsSettings.hide()
-            self.VisualsButton.setStyleSheet("background-color: rgb(116, 0, 113); border-style: inset; border-width: 2px; border-radius: 5px; border-color: rgb(93, 0, 90)")
-            self.OtherSettings.hide()
-            self.OtherButton.setStyleSheet("background-color: rgb(116, 0, 113); border-style: inset; border-width: 2px; border-radius: 5px; border-color: rgb(93, 0, 90)")
-            self.CreditsPage.hide()
-            self.CreditsButton.setStyleSheet("background-color: rgb(116, 0, 113); border-style: inset; border-width: 2px; border-radius: 5px; border-color: rgb(93, 0, 90)")
-            if menu == "Games":
-                self.GamesSettings.show()
-                self.GamesButton.setStyleSheet("background-color: rgb(116, 0, 113); border-style: inset; border-width: 2px; border-radius: 5px; border-color: rgb(60, 200, 30)")
-            if menu == "Aimbot":
-                self.AimbotSettings.show()
-                self.AimbotButton.setStyleSheet("background-color: rgb(116, 0, 113); border-style: inset; border-width: 2px; border-radius: 5px; border-color: rgb(60, 200, 30)")
-            if menu == "Visuals":
-                self.VisualsSettings.show()
-                self.VisualsButton.setStyleSheet("background-color: rgb(116, 0, 113); border-style: inset; border-width: 2px; border-radius: 5px; border-color: rgb(60, 200, 30)")
-            if menu == "Other":
-                self.OtherSettings.show()
-                self.OtherButton.setStyleSheet("background-color: rgb(116, 0, 113); border-style: inset; border-width: 2px; border-radius: 5px; border-color: rgb(60, 200, 30)")
-            if menu == "Credits":
-                self.CreditsPage.show()
-                self.CreditsButton.setStyleSheet("background-color: rgb(116, 0, 113); border-style: inset; border-width: 2px; border-radius: 5px; border-color: rgb(60, 200, 30)")
             if menu == "hotkey":
                 if self.settingsWidget.isVisible():
                     self.settingsWidget.hide()
                 else:
                     self.settingsWidget.show()
+            else:
+                self.GamesSettings.hide()
+                self.GamesButton.setStyleSheet("background-color: rgb(116, 0, 113); border-style: inset; border-width: 2px; border-radius: 5px; border-color: rgb(93, 0, 90)")
+                self.AimbotSettings.hide()
+                self.AimbotButton.setStyleSheet("background-color: rgb(116, 0, 113); border-style: inset; border-width: 2px; border-radius: 5px; border-color: rgb(93, 0, 90)")
+                self.VisualsSettings.hide()
+                self.VisualsButton.setStyleSheet("background-color: rgb(116, 0, 113); border-style: inset; border-width: 2px; border-radius: 5px; border-color: rgb(93, 0, 90)")
+                self.OtherSettings.hide()
+                self.OtherButton.setStyleSheet("background-color: rgb(116, 0, 113); border-style: inset; border-width: 2px; border-radius: 5px; border-color: rgb(93, 0, 90)")
+                self.CreditsPage.hide()
+                self.CreditsButton.setStyleSheet("background-color: rgb(116, 0, 113); border-style: inset; border-width: 2px; border-radius: 5px; border-color: rgb(93, 0, 90)")
+                if menu == "Games":
+                    self.GamesSettings.show()
+                    self.GamesButton.setStyleSheet("background-color: rgb(116, 0, 113); border-style: inset; border-width: 2px; border-radius: 5px; border-color: rgb(60, 200, 30)")
+                if menu == "Aimbot":
+                    self.AimbotSettings.show()
+                    self.AimbotButton.setStyleSheet("background-color: rgb(116, 0, 113); border-style: inset; border-width: 2px; border-radius: 5px; border-color: rgb(60, 200, 30)")
+                if menu == "Visuals":
+                    self.VisualsSettings.show()
+                    self.VisualsButton.setStyleSheet("background-color: rgb(116, 0, 113); border-style: inset; border-width: 2px; border-radius: 5px; border-color: rgb(60, 200, 30)")
+                if menu == "Other":
+                    self.OtherSettings.show()
+                    self.OtherButton.setStyleSheet("background-color: rgb(116, 0, 113); border-style: inset; border-width: 2px; border-radius: 5px; border-color: rgb(60, 200, 30)")
+                if menu == "Credits":
+                    self.CreditsPage.show()
+                    self.CreditsButton.setStyleSheet("background-color: rgb(116, 0, 113); border-style: inset; border-width: 2px; border-radius: 5px; border-color: rgb(60, 200, 30)")
                 
             
         def TriggerButtonFunc(self):

@@ -237,7 +237,7 @@ def GUIRun():
             self.settingsWidget.setStyleSheet("background-color: rgb(110, 0, 106); border-style: inset; border-width: 1px; border-radius: 10px; border-color: rgb(34, 0, 33)")
             self.settingsWidget.show()
             
-            KeybindText = QLabel("Alt + M", self.settingsWidget)
+            KeybindText = QLabel("Insert", self.settingsWidget)
             KeybindText.setFont(QFont("Arial", 10))
             KeybindText.setStyleSheet("border-width: 0px")
             KeybindText.move(4,2)
@@ -513,7 +513,7 @@ def GUIRun():
             self.timer.timeout.connect(self.update_stats)
             self.timer.start(10)
             
-            keyboard.add_hotkey('alt+m', lambda: self.menuswitcher("hotkey"))
+            keyboard.add_hotkey('insert', lambda: self.menuswitcher("hotkey"))
                         
         def update_stats(self):
             if ShowStats:

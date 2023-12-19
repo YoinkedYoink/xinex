@@ -1,4 +1,4 @@
-# XineX
+# <img src="https://github.com/YoinkedYoink/xinex/assets/87105685/e38db635-f4f4-4569-9a79-4399ea61ab89" width="60" /> XineX 
 AI aimbot for Arsenal and maybe other games  
 You have to change the chracter outlines to pink (100 RED, 0 GREEN, 100 BLUE)
 

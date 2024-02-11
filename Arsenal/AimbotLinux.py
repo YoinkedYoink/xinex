@@ -1,11 +1,11 @@
-mouseInputPath = "/dev/input/event2" #!!!CHANGE THIS PLEASE!!!
+#mouseInputPath = "/dev/input/event2" #!!!CHANGE THIS PLEASE!!!
 #https://python-evdev.readthedocs.io/en/latest/tutorial.html#listing-accessible-event-devices
 
 ModelConfidence = 0.4
 MaxDetections = 5
 UseHalfFloat = False
 
-aimSpeed = 1
+aimSpeed = 0.65
 actRange = 900
 headshot = True
 
@@ -22,7 +22,7 @@ MONITOR_HEIGHT = 1080
 MONITOR_SCALE = 6
 ShowGUI = False
 
-from concurrent.futures import thread
+
 import numpy as np
 lower_pink = np.array([200, 0, 200]) # BGR
 upper_pink = np.array([201, 0, 201]) # BGR 
@@ -40,6 +40,14 @@ from matplotlib import cm
 from tkinter import *
 from tkinter.filedialog import askopenfilename
 
+
+devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
+num = 0
+for device in devices:
+    print(num, device.name)
+    num += 1
+num = input("\nChoose a device: ")
+mouseInputPath = devices[int(num)].path
 
 
 Tk().withdraw()
@@ -163,17 +171,17 @@ with mss.mss() as sct:
                     xdif = (body_cent_list[0] - screenshot_centre[0]) * aimSpeed
                     ydif = (body_cent_list[1] - screenshot_centre[1]) * aimSpeed
 
-                eventX.value = math.floor(xdif/5)
-                eventY.value = math.floor(ydif/5)
+                eventX.value = math.floor(xdif)
+                eventY.value = math.floor(ydif)
 
                 dummy.write_event(eventX)
                 dummy.write_event(eventSync)
                 dummy.write_event(eventY)
                 dummy.write_event(eventSync)
 
-                # send_next[0] = False
-                # thread = threading.Thread(target=cooldown, args=(send_next,0.2,))
-                # thread.start()
+                send_next[0] = False
+                thread = threading.Thread(target=cooldown, args=(send_next,0.005,))
+                thread.start()
 
         if ShowGUI == True:
             screen_fps = cv2.putText(

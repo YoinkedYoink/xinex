@@ -22,6 +22,7 @@ MONITOR_HEIGHT = 1080
 MONITOR_SCALE = 6
 ShowGUI = False
 
+from concurrent.futures import thread
 import numpy as np
 lower_pink = np.array([200, 0, 200]) # BGR
 upper_pink = np.array([201, 0, 201]) # BGR 
@@ -51,14 +52,6 @@ def cooldown(cooldown_bool,wait):
 
 mouse = evdev.InputDevice(mouseInputPath)
 dummy = evdev.UInput.from_device(mouse)
-
-# def mouseinterception():
-#     # self.write(event.type, event.code, event.value)
-#     mouse.grab()
-#     for event in mouse.read_loop():
-#         dummy.write_event(event)
-
-# threading.Thread(target=mouseinterception)
 
 
 region = (int(MONITOR_WIDTH/2-MONITOR_WIDTH/MONITOR_SCALE/2),int(MONITOR_HEIGHT/2-MONITOR_HEIGHT/MONITOR_SCALE/2),int(MONITOR_WIDTH/2+MONITOR_WIDTH/MONITOR_SCALE/2),int(MONITOR_HEIGHT/2+MONITOR_HEIGHT/MONITOR_SCALE/2))
@@ -90,6 +83,12 @@ class eventY:
     type = 2
     code = 1
     value = 0
+
+class eventSync:
+    type = 0
+    code = 0
+    value = 0
+
 
 with mss.mss() as sct:
     while True:
@@ -168,9 +167,12 @@ with mss.mss() as sct:
                 eventY.value = math.floor(ydif/5)
 
                 dummy.write_event(eventX)
+                dummy.write_event(eventSync)
                 dummy.write_event(eventY)
+                dummy.write_event(eventSync)
+
                 # send_next[0] = False
-                # thread = threading.Thread(target=cooldown, args=(send_next,0.001,))
+                # thread = threading.Thread(target=cooldown, args=(send_next,0.2,))
                 # thread.start()
 
         if ShowGUI == True:

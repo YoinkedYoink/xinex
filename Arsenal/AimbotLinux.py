@@ -18,7 +18,7 @@ closeui_key = 'p'
 
 MONITOR_WIDTH = 1920
 MONITOR_HEIGHT = 1080
-MONITOR_SCALE = 6
+MONITOR_SCALE = 4
 ShowGUI = False
 
 
@@ -61,7 +61,8 @@ print("Press your desired bind")
 
 while True:
     if str(mouse.active_keys()) != "[]":
-        aimbot_key = str(mouse.active_keys())
+        aimbot_key = str(mouse.active_keys(verbose=True)).replace("[", "")
+        aimbot_key = aimbot_key.replace("]", "")
         print("Found Key: " + aimbot_key)
         break
     time.sleep(0.1)
@@ -154,7 +155,7 @@ with mss.mss() as sct:
         #         thread = threading.Thread(target=cooldown, args=(trigerbot_toggle,0.3,))
         #         thread.start()
 
-        if str(mouse.active_keys()) == aimbot_key:
+        if aimbot_key in str(mouse.active_keys(verbose=True)):
             aim_assist = True
         else:
             aim_assist = False

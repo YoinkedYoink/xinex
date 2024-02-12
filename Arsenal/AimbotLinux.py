@@ -14,7 +14,6 @@ AimMethod = 1  # 1. Closest To Mouse
                # 3. Highest Confidence
 
 triggerbot_key = 'n'
-aimbot_key = 'x'
 closeui_key = 'p'
 
 MONITOR_WIDTH = 1920
@@ -34,7 +33,6 @@ import cv2
 import evdev
 import time
 import math
-import keyboard
 import threading
 from matplotlib import cm
 from tkinter import *
@@ -50,6 +48,25 @@ num = input("\nChoose a device: ")
 mouseInputPath = devices[int(num)].path
 
 
+mouse = evdev.InputDevice(mouseInputPath)
+dummy = evdev.UInput.from_device(mouse)
+
+
+print("\033c", end='')
+
+print("In 3 seconds press a mouse key to bind to...")
+print("!!!Do not move your mouse!!!")
+time.sleep(3)
+print("Press your desired bind")
+
+while True:
+    if str(mouse.active_keys()) != "[]":
+        aimbot_key = str(mouse.active_keys())
+        print("Found Key: " + aimbot_key)
+        break
+    time.sleep(0.1)
+
+
 Tk().withdraw()
 ModelPath = askopenfilename(filetypes=[("Model File", "*.pt")])
 
@@ -57,9 +74,6 @@ ModelPath = askopenfilename(filetypes=[("Model File", "*.pt")])
 def cooldown(cooldown_bool,wait):
     time.sleep(wait)
     cooldown_bool[0] = True
-
-mouse = evdev.InputDevice(mouseInputPath)
-dummy = evdev.UInput.from_device(mouse)
 
 
 region = (int(MONITOR_WIDTH/2-MONITOR_WIDTH/MONITOR_SCALE/2),int(MONITOR_HEIGHT/2-MONITOR_HEIGHT/MONITOR_SCALE/2),int(MONITOR_WIDTH/2+MONITOR_WIDTH/MONITOR_SCALE/2),int(MONITOR_HEIGHT/2+MONITOR_HEIGHT/MONITOR_SCALE/2))
@@ -140,7 +154,7 @@ with mss.mss() as sct:
         #         thread = threading.Thread(target=cooldown, args=(trigerbot_toggle,0.3,))
         #         thread.start()
 
-        if keyboard.is_pressed(aimbot_key):
+        if str(mouse.active_keys()) == aimbot_key:
             aim_assist = True
         else:
             aim_assist = False

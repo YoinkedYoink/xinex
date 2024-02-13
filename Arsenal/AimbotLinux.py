@@ -116,34 +116,39 @@ with mss.mss() as sct:
         close_p_dist = 100000000
         close_p = -1
         screenshot = np.array(sct.grab({"top": math.ceil(y), "left": math.ceil(x), "width": width, "height": height}))
-        if type(screenshot) == np.ndarray:
-            screenshot = cv2.inRange(screenshot[:,:,:-1], lower_pink, upper_pink)
-            screenshot = cv2.cvtColor(screenshot, cv2.COLOR_GRAY2BGR)
-            df = model(source=screenshot, verbose=False)
-            annotation = df[0].plot()
-            boxes = df[0].boxes
+        if int(aimbot_key) in mouse.active_keys():
+            aim_assist = True
+
+            if type(screenshot) == np.ndarray:
+                screenshot = cv2.inRange(screenshot[:,:,:-1], lower_pink, upper_pink)
+                screenshot = cv2.cvtColor(screenshot, cv2.COLOR_GRAY2BGR)
+                df = model(source=screenshot, verbose=False)
+                annotation = df[0].plot()
+                boxes = df[0].boxes
 
 
-        for i in range (0,MaxDetections):
-            try:
-                df = boxes[i].xyxy[0]
-                xmin = int(df[0])
-                ymin = int(df[1])
-                xmax = int(df[2])
-                ymax = int(df[3])
+            for i in range (0,MaxDetections):
+                try:
+                    df = boxes[i].xyxy[0]
+                    xmin = int(df[0])
+                    ymin = int(df[1])
+                    xmax = int(df[2])
+                    ymax = int(df[3])
 
-                centerX = (xmax-xmin)/2+xmin
-                centerY = (ymax-ymin)/2+ymin
+                    centerX = (xmax-xmin)/2+xmin
+                    centerY = (ymax-ymin)/2+ymin
 
-                distance = math.dist([centerX,centerY],screenshot_centre)
+                    distance = math.dist([centerX,centerY],screenshot_centre)
 
-                if int(distance) < close_p_dist:
-                    close_p_dist = distance
-                    close_p = i
+                    if int(distance) < close_p_dist:
+                        close_p_dist = distance
+                        close_p = i
 
-                cv2.rectangle(screenshot,(xmin,ymin),(xmax,ymax),(0,0,255),3)
-            except:
-                print("",end="")
+                    cv2.rectangle(screenshot,(xmin,ymin),(xmax,ymax),(0,0,255),3)
+                except:
+                    print("",end="")
+        else:
+            aim_assist = False
 
         # if keyboard.is_pressed(triggerbot_key):
         #     if trigerbot_toggle[0] == True:
@@ -152,11 +157,8 @@ with mss.mss() as sct:
         #         trigerbot_toggle[0] = False
         #         thread = threading.Thread(target=cooldown, args=(trigerbot_toggle,0.3,))
         #         thread.start()
+                
 
-        if int(aimbot_key) in mouse.active_keys():
-            aim_assist = True
-        else:
-            aim_assist = False
             # if aim_assist_toggle[0] == True:
             #     aim_assist = not aim_assist
             #     print(aim_assist)

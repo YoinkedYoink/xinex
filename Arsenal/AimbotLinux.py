@@ -1,11 +1,11 @@
 #mouseInputPath = "/dev/input/event2" #!!!CHANGE THIS PLEASE!!!
 #https://python-evdev.readthedocs.io/en/latest/tutorial.html#listing-accessible-event-devices
 
-ModelConfidence = 0.4
+ModelConfidence = 0.1
 MaxDetections = 5
 UseHalfFloat = False
 
-aimSpeed = 0.65
+aimSpeed = 0.7
 actRange = 900
 headshot = True
 
@@ -18,7 +18,7 @@ closeui_key = 'p'
 
 MONITOR_WIDTH = 1920
 MONITOR_HEIGHT = 1080
-MONITOR_SCALE = 4
+MONITOR_SCALE = 6
 ShowGUI = False
 
 
@@ -34,7 +34,6 @@ import evdev
 import time
 import math
 import threading
-from matplotlib import cm
 from tkinter import *
 from tkinter.filedialog import askopenfilename
 
@@ -55,14 +54,13 @@ dummy = evdev.UInput.from_device(mouse)
 print("\033c", end='')
 
 print("In 3 seconds press a mouse key to bind to...")
-print("!!!Do not move your mouse!!!")
+print("!!!Do not move your mouse!!!") # I think it should reject mouse movements?
 time.sleep(3)
 print("Press your desired bind")
 
 while True:
     if str(mouse.active_keys()) != "[]":
-        aimbot_key = str(mouse.active_keys(verbose=True)).replace("[", "")
-        aimbot_key = aimbot_key.replace("]", "")
+        aimbot_key = str(mouse.active_keys()).replace("[", "").replace("]", "")
         print("Found Key: " + aimbot_key)
         break
     time.sleep(0.1)
@@ -155,7 +153,7 @@ with mss.mss() as sct:
         #         thread = threading.Thread(target=cooldown, args=(trigerbot_toggle,0.3,))
         #         thread.start()
 
-        if aimbot_key in str(mouse.active_keys(verbose=True)):
+        if int(aimbot_key) in mouse.active_keys():
             aim_assist = True
         else:
             aim_assist = False

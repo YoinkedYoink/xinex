@@ -5,21 +5,28 @@ ModelConfidence = 0.1
 MaxDetections = 5
 UseHalfFloat = False
 
-aimSpeed = 0.7
-actRange = 900
-headshot = True
+aimSpeed = 0.6 # When not looking in bounding box
+aimPercision = 1 # When looking at enemy bounding box
 
-AimMethod = 1  # 1. Closest To Mouse
+actRange = 900 # "FOV" but there is no circle yet
+headshot = True # You don't need an explination
+
+boxexpand = 0 # px to expand bounding box
+minmove = 1 # minimum px to move mouse
+mousemovedelay = 0.007 # this is in seconds!!!
+
+AimMethod = 1  # 1. Closest To Mouse # ALL DOESN'T WORK YET
                # 2. Biggest Bounding Box
                # 3. Highest Confidence
 
-triggerbot_key = 'n'
-closeui_key = 'p'
+triggerbot_key = 'n' # DOESN'T WORK YET
+closeui_key = 'p' # only if ShowGUI == True
+ShowGUI = False
 
 MONITOR_WIDTH = 1920
 MONITOR_HEIGHT = 1080
-MONITOR_SCALE = 6
-ShowGUI = False
+MONITOR_SCALE = 4
+
 
 
 import numpy as np
@@ -144,7 +151,9 @@ with mss.mss() as sct:
                         close_p_dist = distance
                         close_p = i
 
-                    cv2.rectangle(screenshot,(xmin,ymin),(xmax,ymax),(0,0,255),3)
+                    if ShowGUI:
+                        cv2.rectangle(screenshot,(xmin,ymin),(xmax,ymax),(0,0,255),3)
+                
                 except:
                     print("",end="")
         else:
@@ -180,22 +189,35 @@ with mss.mss() as sct:
                 print("lol")
             if aim_assist == True and close_p_dist < actRange and send_next[0] == True:
                 if headshot == True:
-                    xdif = (head_cent_list[0] - screenshot_centre[0]) * aimSpeed
-                    ydif = (head_cent_list[1] - screenshot_centre[1]) * aimSpeed
+                    if int(head_cent_list[1]) == int(ymin):
+                        hitbuff = 1
+                        #print("added buffer")
+                    else:
+                        hitbuff = 0
+                    xdif = (head_cent_list[0] - screenshot_centre[0])
+                    ydif = (head_cent_list[1]+hitbuff - screenshot_centre[1])
                 else:
-                    xdif = (body_cent_list[0] - screenshot_centre[0]) * aimSpeed
-                    ydif = (body_cent_list[1] - screenshot_centre[1]) * aimSpeed
+                    xdif = (body_cent_list[0] - screenshot_centre[0])
+                    ydif = (body_cent_list[1] - screenshot_centre[1])
+                if xdif not in range(-minmove,minmove) or ydif not in range(-minmove,minmove):
+                    if screenshot_centre[0] in range(int(xmin-boxexpand),int(xmax+boxexpand)) and screenshot_centre[1] in range(int(ymin-boxexpand),int(ymax+boxexpand)):
+                        eventX.value = math.floor(xdif*aimPercision)
+                        eventY.value = math.floor(ydif*aimPercision)
+                        dummy.write_event(eventX)
+                        dummy.write_event(eventSync)
+                        dummy.write_event(eventY)
+                        dummy.write_event(eventSync)
+                    else:
+                        eventX.value = math.floor(xdif*aimSpeed)
+                        eventY.value = math.floor(ydif*aimSpeed)
+                        dummy.write_event(eventX)
+                        dummy.write_event(eventSync)
+                        dummy.write_event(eventY)
+                        dummy.write_event(eventSync)
 
-                eventX.value = math.floor(xdif)
-                eventY.value = math.floor(ydif)
-
-                dummy.write_event(eventX)
-                dummy.write_event(eventSync)
-                dummy.write_event(eventY)
-                dummy.write_event(eventSync)
 
                 send_next[0] = False
-                thread = threading.Thread(target=cooldown, args=(send_next,0.005,))
+                thread = threading.Thread(target=cooldown, args=(send_next,mousemovedelay,))
                 thread.start()
 
         if ShowGUI == True:

@@ -48,7 +48,10 @@ from tkinter.filedialog import askopenfilename
 devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
 num = 0
 for device in devices:
-    print(num, device.name)
+    if "ouse" in device.name and not "eyboard" in device.name:
+        print(num, device.name, "<< Recommended")
+    else:
+        print(num, device.name)
     num += 1
 num = input("\nChoose a device: ")
 mouseInputPath = devices[int(num)].path

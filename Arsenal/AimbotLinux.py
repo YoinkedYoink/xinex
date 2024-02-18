@@ -1,19 +1,16 @@
-#mouseInputPath = "/dev/input/event2" #!!!CHANGE THIS PLEASE!!!
-#https://python-evdev.readthedocs.io/en/latest/tutorial.html#listing-accessible-event-devices
-
 ModelConfidence = 0.1
 MaxDetections = 5
 UseHalfFloat = False
 
-aimSpeed = 0.6 # When not looking in bounding box
-aimPercision = 1 # When looking at enemy bounding box
+aimSpeed = 0.85 # When not looking in bounding box
+aimPercision = 0.9 # When looking at enemy bounding box
 
 actRange = 900 # "FOV" but there is no circle yet
 headshot = True # You don't need an explination
 
 boxexpand = 0 # px to expand bounding box
-minmove = 1 # minimum px to move mouse
-mousemovedelay = 0.007 # this is in seconds!!!
+minmove = 5 # minimum px to move mouse
+mousemovedelay = 0.05 # this is in seconds!!!
 
 AimMethod = 1  # 1. Closest To Mouse # ALL DOESN'T WORK YET
                # 2. Biggest Bounding Box
@@ -47,18 +44,46 @@ from tkinter.filedialog import askopenfilename
 
 devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
 num = 0
+Recommended = {}
 for device in devices:
     if "ouse" in device.name and not "eyboard" in device.name:
         print(num, device.name, "<< Recommended")
+        Recommended[str(num)] = str(device.name)
     else:
         print(num, device.name)
     num += 1
-num = input("\nChoose a device: ")
-mouseInputPath = devices[int(num)].path
 
+if num == 0:
+    input("No devices found, run as root\nPress enter to exit: ")
+    raise SystemExit
 
+if len(Recommended) == 1:
+    print("\nRecommended device "+str(list(Recommended.values())[0])+" found!")
+    acceptorno = input("Accept? (y/n): ")
+    if acceptorno == "y":
+        mouseInputPath = devices[int(list(Recommended.keys())[0])].path
+    elif acceptorno == "n":
+        num = input("\nChoose a device: ")
+        mouseInputPath = devices[int(num)].path
+    else:
+        print("Invalid input?")
+        input("Press enter to exit: ")
+        raise SystemExit
+elif len(Recommended) > 1:
+    print("\nMultiple recommended devices found!\n")
+    num = 0
+    for keys in Recommended:
+        print(str(num)+". "+str(Recommended[keys]))
+        num+=1
+    num = input("\nChoose a device: ")
+    mouseInputPath = str(list(Recommended.values())[int(num)])
+else:
+    num = input("\nChoose a device: ")
+    mouseInputPath = devices[int(num)].path
+
+mouseInputPath = "/dev/input/event2"
 mouse = evdev.InputDevice(mouseInputPath)
-dummy = evdev.UInput.from_device(mouse)
+dummy = evdev.UInput.from_device(mouse, name="LG Mouse")
 
 
 print("\033c", end='')
@@ -119,7 +144,6 @@ class eventSync:
     type = 0
     code = 0
     value = 0
-
 
 with mss.mss() as sct:
     while True:
@@ -206,15 +230,15 @@ with mss.mss() as sct:
                     if screenshot_centre[0] in range(int(xmin-boxexpand),int(xmax+boxexpand)) and screenshot_centre[1] in range(int(ymin-boxexpand),int(ymax+boxexpand)):
                         eventX.value = math.floor(xdif*aimPercision)
                         eventY.value = math.floor(ydif*aimPercision)
+
                         dummy.write_event(eventX)
-                        dummy.write_event(eventSync)
                         dummy.write_event(eventY)
                         dummy.write_event(eventSync)
                     else:
                         eventX.value = math.floor(xdif*aimSpeed)
                         eventY.value = math.floor(ydif*aimSpeed)
+
                         dummy.write_event(eventX)
-                        dummy.write_event(eventSync)
                         dummy.write_event(eventY)
                         dummy.write_event(eventSync)
 

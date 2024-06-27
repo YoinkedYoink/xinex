@@ -26,8 +26,8 @@ ShowStats = True
 FOVShow = True
 
 import numpy as np
-lower_pink = np.array([200, 0, 200]) # BGR
-upper_pink = np.array([201, 0, 201]) # BGR 
+lower_pink = np.array([229, 0, 229]) # BGR
+upper_pink = np.array([230, 0, 230]) # BGR 
 
 print("\033c", end='')
 print("Importing dependencies")

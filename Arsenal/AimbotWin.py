@@ -183,7 +183,7 @@ def GUIRun():
                             thread = threading.Thread(target=cooldown, args=(send_next,mouseMoveDelay,))
                             thread.start()
                             
-                    if triggerbot == True and TryTrig[0] == True and screenshot_centre[0] in range(int(xmin),int(xmax)) and screenshot_centre[1] in range(int(ymin),int(ymax)):
+                    if triggerbot == True and TryTrig[0] == True and headshot = True and screenshot_centre[0] in range(int((xmax-xmin)/3),int((xmax-xmin)/3)*2) and screenshot_centre[1] in range(int(ymin),int((ymax-ymin)/headshotSplit)):
                         TryTrig[0] = False
                         threading.Thread(target=triggerboot).start()
                         

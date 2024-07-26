@@ -187,10 +187,18 @@ def GUIRun():
                         TryTrig[0] = False
                         threading.Thread(target=triggerboot).start()
                      elif triggerbot == True and TryTrig[0] == True and headshot == False and screenshot_centre[0] in range(int(xmin),int(xmax)) and screenshot_centre[1] in range(int(ymin),int(ymax)):
-                              print("hi")
-                              #head == what is on top
-                              #body == 3/5 in middle -1/2 bottom and hssplit top
-                              #legs same as head but to bottom
+                        print("hi")
+                         #head
+                         if screenshot_centre[0] in range(int((xmax-xmin)/3),int((xmax-xmin)/3)*2) and screenshot_centre[1] in range(int(ymin),int((ymax-ymin)/headshotSplit)):
+                              TryTrig[0] = False
+                              threading.Thread(target=triggerboot).start()
+                        #body and arms
+                         #this is like halfway done... doing this on phone without language server is hard
+                         if screenshot_centre[0] in range(int((xmax-xmin)/5)*2,int((xmax-xmin)/5)*4) and screenshot_centre[1] in range(int(ymax-ymin),int((ymax-(ymin+(ymax-ymin)/headshotSplit)))):
+                              TryTrig[0] = False
+                              threading.Thread(target=triggerboot).start()
+                         #body == 3/5 in middle -1/2 bottom and hssplit top
+                         #legs same as head but to bottom
                         
                 def fpscount():
                     global fps

@@ -194,10 +194,10 @@ def GUIRun():
                               threading.Thread(target=triggerboot).start()
                         #body and arms
                          #this is like halfway done... doing this on phone without language server is hard
-                         if screenshot_centre[0] in range(int((xmax-xmin)/5)*2,int((xmax-xmin)/5)*4) and screenshot_centre[1] in range(int(ymax-ymin),int((ymax-(ymin+(ymax-ymin)/headshotSplit)))):
+                         if screenshot_centre[0] in range(int((xmax-xmin)/5)*2,int((xmax-xmin)/5)*4) and screenshot_centre[1] in range(int((ymax-ymin)/headshotSplit),int(((ymax-ymin)/headshotSplit)+1): #bottom of head to 2/3 down
                               TryTrig[0] = False
                               threading.Thread(target=triggerboot).start()
-                         #body == 3/5 in middle -1/2 bottom and hssplit top
+                         #body == 3/5 i
                          #legs same as head but to bottom
                         
                 def fpscount():
